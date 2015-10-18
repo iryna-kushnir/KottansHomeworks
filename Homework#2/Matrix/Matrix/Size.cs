@@ -1,4 +1,6 @@
-﻿namespace Matrix
+﻿using System.Security.Cryptography;
+
+namespace Matrix
 {
     public class Size
     {
@@ -8,8 +10,8 @@
             Height = height;
         }
 
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width { get; }
+        public int Height { get; }
         public bool IsSquare => Width == Height;
 
         protected bool Equals(Size other)
