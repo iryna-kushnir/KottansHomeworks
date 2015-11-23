@@ -1,4 +1,6 @@
 ﻿using System;
+using Battleship.Exceptions;
+using Battleship.Ships;
 using NUnit.Framework;
 
 namespace Battleship.Tests
@@ -61,20 +63,11 @@ namespace Battleship.Tests
             Assert.Throws<NotAShipException>(() => { board.Add(ship); });
         }
 
-        [TestCase(
-            "There is not sufficient count of ships. We need: PatrolBoat (4), Cruiser (3), Submarine (2), AircraftCarrier (1)"
-            )]
-        [TestCase(
-            "There is not sufficient count of ships. We need: PatrolBoat (3), Cruiser (3), Submarine (2), AircraftCarrier (1)",
-            "A1")]
-        [TestCase(
-            "There is not sufficient count of ships. We need: PatrolBoat (4), Cruiser (2), Submarine (2), AircraftCarrier (1)",
-            "A1x2")]
-        [TestCase(
-            "There is not sufficient count of ships. We need: PatrolBoat (4), Cruiser (3), Submarine (1), AircraftCarrier (1)",
-            "A1x3")]
-        [TestCase("There is not sufficient count of ships. We need: PatrolBoat (4), Cruiser (3), Submarine (1)", "A1x4")
-        ]
+        [TestCase("There is not sufficient count of ships. We need: PatrolBoat (4), Cruiser (3), Submarine (2), AircraftCarrier (1)")]
+        [TestCase("There is not sufficient count of ships. We need: PatrolBoat (3), Cruiser (3), Submarine (2), AircraftCarrier (1)", "A1")]
+        [TestCase("There is not sufficient count of ships. We need: PatrolBoat (4), Cruiser (2), Submarine (2), AircraftCarrier (1)", "A1x2")]
+        [TestCase("There is not sufficient count of ships. We need: PatrolBoat (4), Cruiser (3), Submarine (1), AircraftCarrier (1)", "A1x3")]
+        [TestCase("There is not sufficient count of ships. We need: PatrolBoat (4), Cruiser (3), Submarine (1)", "A1x4")]
         public void ThrowBoardIsNotReadyWithoutAllShips_DuringValidation(string message, params string[] ships)
         {
             foreach (var ship in ships)
@@ -88,13 +81,42 @@ namespace Battleship.Tests
         [TestCase("A1x4-", "C3x3-", "G1x3|", "C6x2|", "I3x2-", "G6x2-", "A3", "A6", "I1", "I8")]
         public void AcceptSuccessfulSetup(params string[] ships)
         {
-            foreach (var ship in ships)
+           foreach (var ship in ships)
             {
-                Console.WriteLine(ship);
-                board.Add(ship);
+               board.Add(ship);
             }
 
             board.Validate();
+        }
+        
+        [TestCase("Board already has all necessary PatrolBoat ships!", "A1", "A3", "A5", "A7", "A9")]
+        [TestCase("Board already has all necessary Cruiser ships!", "A1x2|", "A3x2|", "A5x2|", "A7x2|")]
+        [TestCase("Board already has all necessary Submarine ships!", "A1x3|", "A3x3|", "A5x3|")]
+        [TestCase("Board already has all necessary PatrolBoat ships!", "A1x4|", "A3x4|")]
+        [TestCase("Board already has all necessary PatrolBoat ships!", "A10", "A1x4-", "C3x3-", "G1x3|", "C6x2|", "I3x2-", "G6x2-", "A3", "A6", "I1", "I8")]
+        public void ThrowBoardAlreadyHasNecessaryShips_DuringAddingOfExtraShips(string message, string shipToAdd, params string[] ships)
+        {
+            foreach (var ship in ships)
+            {
+                board.Add(ship);
+            }
+
+            Assert.Throws<BoardAlreadyHasNecessaryShipsException>(() => { board.Add(shipToAdd); }, message);
+        }
+
+        [TestCase("A1", "A3", "A5", "A7")]
+        [TestCase("A1x2|", "A3x2|", "A5x2|")]
+        [TestCase("A1x3|", "A3x3|")]
+        [TestCase("A1x4|")]
+        [TestCase("A1x4-", "C3x3-", "G1x3|", "C6x2|", "I3x2-", "G6x2-", "A3", "A6", "I1", "I8")]
+        public void AddsLastNecessaryShipSuccessfully(string shipToAdd, params string[] ships)
+        {
+            foreach (var ship in ships)
+            {
+                board.Add(ship);
+            }
+
+            Assert.DoesNotThrow(() => { board.Add(shipToAdd); });
         }
     }
 }

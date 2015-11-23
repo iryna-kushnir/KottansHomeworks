@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using Battleship.Exceptions;
 
-namespace Battleship
+namespace Battleship.Ships
 {
     public abstract class Ship
     {
@@ -20,6 +21,9 @@ namespace Battleship
         public uint X { get; }
         public uint Y { get; }
         public Direction Direction { get; }
+
+        public uint EndX => X + (Direction == Direction.Horizontal ? Length - 1 : 0);
+        public uint EndY => Y + (Direction == Direction.Vertical ? Length - 1 : 0);
 
         public abstract uint Length { get; }
 
@@ -89,8 +93,8 @@ namespace Battleship
 
         public bool FitsInSquare(byte squareHeight, byte squareWidth)
         {
-            return (X + (Direction == Direction.Horizontal ? Length - 1 : 0) <= squareWidth) &&
-                   (Y + (Direction == Direction.Vertical ? Length - 1 : 0) <= squareHeight);
+            return EndX <= squareWidth &&
+                   EndY <= squareHeight;
         }
 
         public bool OverlapsWith(Ship otherShip)
@@ -98,12 +102,10 @@ namespace Battleship
             return
                 (Math.Abs(
                     (int)
-                        (X + (Direction == Direction.Horizontal ? Length - 1 : 0) - otherShip.X -
-                         (otherShip.Direction == Direction.Horizontal ? otherShip.Length - 1 : 0))) <= 1) &&
+                        (EndX - otherShip.EndX)) <= 1) &&
                 (Math.Abs(
                     (int)
-                        (Y + (Direction == Direction.Vertical ? Length - 1 : 0) - otherShip.Y -
-                         (otherShip.Direction == Direction.Vertical ? otherShip.Length - 1 : 0))) <= 1);
+                        (EndY - otherShip.EndY)) <= 1);
         }
 
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using Battleship.Exceptions;
+using Battleship.Ships;
 using NUnit.Framework;
 
 namespace Battleship.Tests

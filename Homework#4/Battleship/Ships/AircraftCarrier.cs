@@ -1,4 +1,4 @@
-﻿namespace Battleship
+﻿namespace Battleship.Ships
 {
     public class AircraftCarrier : Ship
     {

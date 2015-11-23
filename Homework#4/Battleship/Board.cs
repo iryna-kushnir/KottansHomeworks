@@ -1,21 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using Battleship.Exceptions;
+using Battleship.Ships;
 
 namespace Battleship
 {
     public class Board
     {
-        private readonly List<Ship> _ships = new List<Ship>();
-        private readonly int _requiredAircraftCarriers = 1;
-        private readonly int _requiredCruisers = 3;
+        private readonly Dictionary<Type, int> _requiredNumbersOfShips = new Dictionary<Type, int>
+        {
+            [typeof (PatrolBoat)] = 4,
+            [typeof (Cruiser)] = 3,
+            [typeof (Submarine)] = 2,
+            [typeof (AircraftCarrier)] = 1
+        };
 
-        private readonly int _requiredPatrolBoats = 4;
-        private readonly int _requiredSubmarines = 2;
+        private readonly List<Ship> _ships = new List<Ship>();
 
         public void Add(Ship ship)
         {
-            if (ship.X + (ship.Direction == Direction.Horizontal ? ship.Length - 1 : 0) > 10 ||
-                ship.Y + (ship.Direction == Direction.Vertical ? ship.Length - 1 : 0) > 10)
+            if (!GetDiffInQuantitiesOfRequiredAndActualShips().ContainsKey(ship.GetType()))
+                throw new BoardAlreadyHasNecessaryShipsException(
+                    $"Board already has all necessary {ship.GetType().Name} ships!");
+            if (ship.EndX > 10 ||
+                ship.EndY > 10)
                 throw new ArgumentOutOfRangeException();
             foreach (var alreadyAddedShip in _ships)
             {
@@ -39,32 +47,44 @@ namespace Battleship
 
         public void Validate()
         {
-            int numberOfPatrolBoats = 0, numberOfCruisers = 0, numberOfSubmarines = 0, numberOfAircraftCarriers = 0;
-            foreach (var ship in _ships)
-            {
-                if (ship.GetType() == typeof (PatrolBoat)) numberOfPatrolBoats ++;
-                if (ship.GetType() == typeof (Cruiser)) numberOfCruisers ++;
-                if (ship.GetType() == typeof (Submarine)) numberOfSubmarines++;
-                if (ship.GetType() == typeof (AircraftCarrier)) numberOfAircraftCarriers++;
-            }
+            var diffsInQuantitiesOfShips = GetDiffInQuantitiesOfRequiredAndActualShips();
 
             var errorMessage = string.Empty;
-            if (numberOfPatrolBoats < _requiredPatrolBoats)
-                errorMessage += $"PatrolBoat ({_requiredPatrolBoats - numberOfPatrolBoats})";
-            if (numberOfCruisers < _requiredCruisers)
+
+            foreach (var ship in diffsInQuantitiesOfShips.Keys)
+            {
                 errorMessage += errorMessage == string.Empty
-                    ? string.Empty
-                    : ", " + $"Cruiser ({_requiredCruisers - numberOfCruisers})";
-            if (numberOfSubmarines < _requiredSubmarines)
-                errorMessage += errorMessage == string.Empty
-                    ? string.Empty
-                    : ", " + $"Submarine ({_requiredSubmarines - numberOfSubmarines})";
-            if (numberOfAircraftCarriers < _requiredAircraftCarriers)
-                errorMessage += errorMessage == string.Empty
-                    ? string.Empty
-                    : ", " + $"AircraftCarrier ({_requiredAircraftCarriers - numberOfAircraftCarriers})";
+                    ? ", "
+                    : $"{ship} ({diffsInQuantitiesOfShips[ship]})";
+            }
             if (errorMessage != string.Empty)
                 throw new BoardIsNotReadyException($"There is not sufficient count of ships. We need: {errorMessage}");
+        }
+
+        private Dictionary<Type, int> GetDiffInQuantitiesOfRequiredAndActualShips()
+        {
+            var actualQuantitiesOfShips = new Dictionary<Type, int>
+            {
+                [typeof (PatrolBoat)] = 0,
+                [typeof (Cruiser)] = 0,
+                [typeof (Submarine)] = 0,
+                [typeof (AircraftCarrier)] = 0
+            };
+
+            foreach (var ship in _ships)
+            {
+                actualQuantitiesOfShips[ship.GetType()] ++;
+            }
+
+            var diffs = new Dictionary<Type, int>();
+
+            foreach (var ship in actualQuantitiesOfShips.Keys)
+            {
+                var diff = _requiredNumbersOfShips[ship] - actualQuantitiesOfShips[ship];
+                if (diff > 0) diffs.Add(ship, diff);
+            }
+
+            return diffs;
         }
     }
 }
