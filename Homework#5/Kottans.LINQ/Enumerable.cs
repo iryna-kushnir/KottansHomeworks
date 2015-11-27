@@ -107,6 +107,38 @@ namespace Kottans.LINQ
             }
         }
 
+        public static IEnumerable<T> Where<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (predicate == null) throw new ArgumentNullException();
+            return WhereYieldResult(source, predicate);
+        }
+
+        private static IEnumerable<T> WhereYieldResult<T>(IEnumerable<T> source, Func<T, bool> predicate)
+        {
+            foreach (var element in source)
+            {
+                if (predicate(element)) yield return element;
+            }
+        }
+
+        public static IEnumerable<T> Where<T>(this IEnumerable<T> source, Func<T, int, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (predicate == null) throw new ArgumentNullException();
+            return WhereYieldResult(source, predicate);
+        }
+
+        private static IEnumerable<T> WhereYieldResult<T>(IEnumerable<T> source, Func<T, int, bool> predicate)
+        {
+            int index = 0;
+            foreach (var element in source)
+            {
+                if (predicate(element, index)) yield return element;
+                index ++;
+            }
+        }
+
         public static int Sum(this IEnumerable<int> source)
         {
             if (source == null) throw new ArgumentNullException();
