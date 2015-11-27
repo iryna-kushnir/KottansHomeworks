@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Linq;
 using System.Runtime.CompilerServices;
 using Kottans.LINQ.Tests.Helpers;
 using NUnit.Framework;

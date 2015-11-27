@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.CompilerServices;
 
 //using System.Linq;
 
@@ -179,6 +181,33 @@ namespace Kottans.LINQ
                 if (predicate(element)) return true;
             }
             return false;
+        }
+
+        public static IEnumerable<TSource> Distinct<TSource>(this IEnumerable<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException();
+            return source.Distinct(EqualityComparer<TSource>.Default);
+        }
+
+        public static IEnumerable<TSource> Distinct<TSource>(this IEnumerable<TSource> source, IEqualityComparer<TSource> comparer)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (comparer == null) return DistinctYieldResult(source, EqualityComparer<TSource>.Default);
+            return DistinctYieldResult(source, comparer);
+        }
+
+        public static IEnumerable<TSource> DistinctYieldResult<TSource>(IEnumerable<TSource> source,
+            IEqualityComparer<TSource> comparer)
+        {
+            var returned = new HashSet<TSource>(comparer);
+            foreach (var element in source)
+            {
+                if (!returned.Contains(element))
+                {
+                    returned.Add(element);
+                    yield return element;
+                }
+            }
         }
 
         public static int Sum(this IEnumerable<int> source)
