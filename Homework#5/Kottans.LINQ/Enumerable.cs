@@ -160,6 +160,27 @@ namespace Kottans.LINQ
             return default(TSource);
         }
 
+        public static bool Any<TSource>(this IEnumerable<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException();
+            using (var enumerator = source.GetEnumerator())
+            {
+                if (enumerator.MoveNext()) return true;
+            }
+            return false;
+        }
+
+        public static bool Any<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (predicate == null) throw new ArgumentNullException();
+            foreach (var element in source)
+            {
+                if (predicate(element)) return true;
+            }
+            return false;
+        }
+
         public static int Sum(this IEnumerable<int> source)
         {
             if (source == null) throw new ArgumentNullException();
