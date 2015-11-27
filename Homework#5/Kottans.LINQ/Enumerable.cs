@@ -7,7 +7,7 @@ namespace Kottans.LINQ
 {
     public static class Enumerable
     {
-        public static bool All<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        public static bool All<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             if (source == null) throw new ArgumentNullException();
             if (predicate == null) throw new ArgumentNullException();
@@ -18,7 +18,7 @@ namespace Kottans.LINQ
             return true;
         }
 
-        public static int Count<T>(this IEnumerable<T> source)
+        public static int Count<TSource>(this IEnumerable<TSource> source)
         {
             if (source == null) throw new ArgumentNullException();
             var count = 0;
@@ -33,7 +33,7 @@ namespace Kottans.LINQ
             return count;
         }
 
-        public static int Count<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        public static int Count<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             if (source == null) throw new ArgumentNullException();
             if (predicate == null) throw new ArgumentNullException();
@@ -107,14 +107,14 @@ namespace Kottans.LINQ
             }
         }
 
-        public static IEnumerable<T> Where<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             if (source == null) throw new ArgumentNullException();
             if (predicate == null) throw new ArgumentNullException();
             return WhereYieldResult(source, predicate);
         }
 
-        private static IEnumerable<T> WhereYieldResult<T>(IEnumerable<T> source, Func<T, bool> predicate)
+        private static IEnumerable<TSource> WhereYieldResult<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             foreach (var element in source)
             {
@@ -122,14 +122,14 @@ namespace Kottans.LINQ
             }
         }
 
-        public static IEnumerable<T> Where<T>(this IEnumerable<T> source, Func<T, int, bool> predicate)
+        public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, int, bool> predicate)
         {
             if (source == null) throw new ArgumentNullException();
             if (predicate == null) throw new ArgumentNullException();
             return WhereYieldResult(source, predicate);
         }
 
-        private static IEnumerable<T> WhereYieldResult<T>(IEnumerable<T> source, Func<T, int, bool> predicate)
+        private static IEnumerable<TSource> WhereYieldResult<TSource>(IEnumerable<TSource> source, Func<TSource, int, bool> predicate)
         {
             int index = 0;
             foreach (var element in source)
@@ -137,6 +137,27 @@ namespace Kottans.LINQ
                 if (predicate(element, index)) yield return element;
                 index ++;
             }
+        }
+
+        public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException();
+            using (var enumerator = source.GetEnumerator())
+            {
+                if (enumerator.MoveNext()) return enumerator.Current;
+            }
+            return default(TSource);
+        }
+
+        public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (predicate == null) throw new ArgumentNullException();
+            foreach (var element in source)
+            {
+                if (predicate(element)) return element;
+            }
+            return default(TSource);
         }
 
         public static int Sum(this IEnumerable<int> source)
@@ -167,13 +188,13 @@ namespace Kottans.LINQ
             return result;
         }
 
-        public static int Sum<T>(this IEnumerable<T> source, Func<T, int> selector)
+        public static int Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, int> selector)
         {
             return Sum(source.Select(selector));
         }
 
 
-        public static int? Sum<T>(this IEnumerable<T> source, Func<T, int?> selector)
+        public static int? Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, int?> selector)
         {
             return Sum(source.Select(selector));
         }
@@ -206,13 +227,13 @@ namespace Kottans.LINQ
             return result;
         }
 
-        public static long Sum<T>(this IEnumerable<T> source, Func<T, long> selector)
+        public static long Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, long> selector)
         {
             return Sum(source.Select(selector));
         }
 
 
-        public static long? Sum<T>(this IEnumerable<T> source, Func<T, long?> selector)
+        public static long? Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, long?> selector)
         {
             return Sum(source.Select(selector));
         }
@@ -245,13 +266,13 @@ namespace Kottans.LINQ
             return result;
         }
 
-        public static decimal Sum<T>(this IEnumerable<T> source, Func<T, decimal> selector)
+        public static decimal Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> selector)
         {
             return Sum(source.Select(selector));
         }
 
 
-        public static decimal? Sum<T>(this IEnumerable<T> source, Func<T, decimal?> selector)
+        public static decimal? Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> selector)
         {
             return Sum(source.Select(selector));
         }
@@ -284,13 +305,13 @@ namespace Kottans.LINQ
             return (float?) result;
         }
 
-        public static float Sum<T>(this IEnumerable<T> source, Func<T, float> selector)
+        public static float Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, float> selector)
         {
             return Sum(source.Select(selector));
         }
 
 
-        public static float? Sum<T>(this IEnumerable<T> source, Func<T, float?> selector)
+        public static float? Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, float?> selector)
         {
             return Sum(source.Select(selector));
         }
@@ -323,13 +344,13 @@ namespace Kottans.LINQ
             return result;
         }
 
-        public static double Sum<T>(this IEnumerable<T> source, Func<T, double> selector)
+        public static double Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, double> selector)
         {
             return Sum(source.Select(selector));
         }
 
 
-        public static double? Sum<T>(this IEnumerable<T> source, Func<T, double?> selector)
+        public static double? Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, double?> selector)
         {
             return Sum(source.Select(selector));
         }
