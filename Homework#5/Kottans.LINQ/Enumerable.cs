@@ -210,6 +210,16 @@ namespace Kottans.LINQ
             }
         }
 
+        public static IEnumerable<T> Empty<T>()
+        {
+            return EmptyEnumerable<T>.Instance;
+        }
+
+        private static class EmptyEnumerable<T>
+        {
+            public static readonly T[] Instance = new T[0];
+        }
+
         public static int Sum(this IEnumerable<int> source)
         {
             if (source == null) throw new ArgumentNullException();
