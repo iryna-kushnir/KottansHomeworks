@@ -141,6 +141,31 @@ namespace Kottans.LINQ
             }
         }
 
+        public static TSource First<TSource>(this IEnumerable<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException();
+            using (var enumerator = source.GetEnumerator())
+            {
+                enumerator.MoveNext();
+                return enumerator.Current;
+            }
+        }
+
+        public static TSource First<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (predicate == null) throw new ArgumentNullException();
+            using (var enumerator = source.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    if (predicate(enumerator.Current)) return enumerator.Current;
+                }
+                return enumerator.Current;
+            }
+        }
+
+
         public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source)
         {
             if (source == null) throw new ArgumentNullException();
