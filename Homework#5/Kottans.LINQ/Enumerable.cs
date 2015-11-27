@@ -54,9 +54,34 @@ namespace Kottans.LINQ
         {
             if (source == null) throw new ArgumentNullException();
             if (selector == null) throw new ArgumentNullException();
+            return SelectYieldResult(source, selector);
+        }
+
+        private static IEnumerable<TResult> SelectYieldResult<TSource, TResult>(IEnumerable<TSource> source,
+            Func<TSource, TResult> selector)
+        {
             foreach (var element in source)
             {
                 yield return selector.Invoke(element);
+            }
+        }
+
+        public static IEnumerable<TResult> Select<TSource, TResult>(this IEnumerable<TSource> source,
+            Func<TSource, int, TResult> selector)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (selector == null) throw new ArgumentNullException();
+            return SelectYieldResult(source, selector);
+        }
+
+        private static IEnumerable<TResult> SelectYieldResult<TSource, TResult>(IEnumerable<TSource> source,
+            Func<TSource, int, TResult> selector)
+        {
+            int index = 0;
+            foreach (var element in source)
+            {
+                yield return selector.Invoke(element, index);
+                index++;
             }
         }
 
