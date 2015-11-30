@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Linq;
 using Kottans.LINQ.Tests.Helpers;
 using NUnit.Framework;
 
@@ -26,7 +26,8 @@ namespace Kottans.LINQ.Tests
         {
             int[] values = { 10, 0, 20 };
             var query = values.Select(x => 10 / x).Reverse();
-            Assert.Throws<DivideByZeroException>(() => {
+            Assert.Throws<DivideByZeroException>(() =>
+            {
                 using (var iterator = query.GetEnumerator())
                 {
                     iterator.MoveNext();

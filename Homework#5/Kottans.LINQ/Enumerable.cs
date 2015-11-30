@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
+
 //using System.Linq;
 
 namespace Kottans.LINQ
@@ -309,7 +312,7 @@ namespace Kottans.LINQ
             return DistinctYieldResult(source, comparer);
         }
 
-        public static IEnumerable<TSource> DistinctYieldResult<TSource>(IEnumerable<TSource> source,
+        private static IEnumerable<TSource> DistinctYieldResult<TSource>(IEnumerable<TSource> source,
             IEqualityComparer<TSource> comparer)
         {
             var returned = new HashSet<TSource>(comparer);
@@ -529,12 +532,35 @@ namespace Kottans.LINQ
             return RepeatYieldResult(toRepeat, times);
         }
 
-        public static IEnumerable<T> RepeatYieldResult<T>(T toRepeat, int times)
+        private static IEnumerable<T> RepeatYieldResult<T>(T toRepeat, int times)
         {
             for (int i = 0; i < times; i++)
             {
                 yield return toRepeat;
             }
+        }
+
+        public static IEnumerable<TSource> Reverse<TSource>(this IEnumerable<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException();
+            return ReverseYiedResult(source);
+        }
+
+        private static IEnumerable<TSource> ReverseYiedResult<TSource>(IEnumerable<TSource> source)
+        {
+            var count = source.Count();
+           var array = new TSource[count];
+            int index = count - 1;
+            foreach (var element in source)
+            {
+                array[index] = element;
+                index--;
+            }
+            for (int i = 0; i < count; i++)
+            {
+                yield return array[i];
+            }
+
         }
 
         private static class EmptyEnumerable<T>
