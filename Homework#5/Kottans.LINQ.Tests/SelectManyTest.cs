@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿//using System.Linq;
 using Kottans.LINQ.Tests.Helpers;
 using NUnit.Framework;
 

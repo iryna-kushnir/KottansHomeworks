@@ -563,6 +563,90 @@ namespace Kottans.LINQ
 
         }
 
+        public static IEnumerable<TResult> SelectMany<TSource, TResult>(this IEnumerable<TSource> source,
+            Func<TSource, IEnumerable<TResult>> selector)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (selector == null) throw new ArgumentNullException();
+            return SelectManyYieldResult(source, selector);
+        }
+
+        private static IEnumerable<TResult> SelectManyYieldResult<TSource, TResult>(IEnumerable<TSource> source,
+            Func<TSource, IEnumerable<TResult>> selector)
+        {
+            foreach (var element in source)
+            {
+                foreach (var subElement in selector(element))
+                {
+                    yield return subElement;
+                }
+            }
+        }
+
+        public static IEnumerable<TResult> SelectMany<TSource, TResult>(this IEnumerable<TSource> source,
+           Func<TSource, int, IEnumerable<TResult>> selector)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (selector == null) throw new ArgumentNullException();
+            return SelectManyYieldResult(source, selector);
+        }
+
+        private static IEnumerable<TResult> SelectManyYieldResult<TSource, TResult>(IEnumerable<TSource> source,
+            Func<TSource, int, IEnumerable<TResult>> selector)
+        {
+            int index = 0;
+            foreach (var element in source)
+            {
+                foreach (var subElement in selector(element, index))
+                {
+                    yield return subElement;
+                }
+                index++;
+            }
+        }
+
+        public static IEnumerable<TResult> SelectMany<TSource, TResult, TCollection>(this IEnumerable<TSource> source,
+            Func<TSource, IEnumerable<TCollection>> selector, Func<TSource, TCollection, TResult> resultSelector)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (selector == null) throw new ArgumentNullException();
+            return SelectManyYieldResult(source, selector, resultSelector);
+        }
+
+        private static IEnumerable<TResult> SelectManyYieldResult<TSource, TResult, TCollection>(this IEnumerable<TSource> source,
+           Func<TSource, IEnumerable<TCollection>> selector, Func<TSource, TCollection, TResult> resultSelector)
+        {
+            foreach (var element in source)
+            {
+                foreach (var subElement in selector(element))
+                {
+                    yield return resultSelector(element, subElement);
+                }
+            }
+        }
+
+        public static IEnumerable<TResult> SelectMany<TSource, TResult, TCollection>(this IEnumerable<TSource> source,
+            Func<TSource, int, IEnumerable<TCollection>> selector, Func<TSource, TCollection, TResult> resultSelector)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (selector == null) throw new ArgumentNullException();
+            return SelectManyYieldResult(source, selector, resultSelector);
+        }
+
+        private static IEnumerable<TResult> SelectManyYieldResult<TSource, TResult, TCollection>(this IEnumerable<TSource> source,
+           Func<TSource, int, IEnumerable<TCollection>> selector, Func<TSource, TCollection, TResult> resultSelector)
+        {
+            int index = 0;
+            foreach (var element in source)
+            {
+                foreach (var subElement in selector(element, index))
+                {
+                    yield return resultSelector(element, subElement);
+                }
+                index++;
+            }
+        }
+
         private static class EmptyEnumerable<T>
         {
             public static readonly T[] Instance = new T[0];
