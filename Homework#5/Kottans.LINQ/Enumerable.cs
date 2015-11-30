@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.CompilerServices;
-
 //using System.Linq;
 
 namespace Kottans.LINQ
@@ -79,7 +76,7 @@ namespace Kottans.LINQ
         private static IEnumerable<TResult> SelectYieldResult<TSource, TResult>(IEnumerable<TSource> source,
             Func<TSource, int, TResult> selector)
         {
-            int index = 0;
+            var index = 0;
             foreach (var element in source)
             {
                 yield return selector.Invoke(element, index);
@@ -109,14 +106,16 @@ namespace Kottans.LINQ
             }
         }
 
-        public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source,
+            Func<TSource, bool> predicate)
         {
             if (source == null) throw new ArgumentNullException();
             if (predicate == null) throw new ArgumentNullException();
             return WhereYieldResult(source, predicate);
         }
 
-        private static IEnumerable<TSource> WhereYieldResult<TSource>(IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        private static IEnumerable<TSource> WhereYieldResult<TSource>(IEnumerable<TSource> source,
+            Func<TSource, bool> predicate)
         {
             foreach (var element in source)
             {
@@ -124,16 +123,18 @@ namespace Kottans.LINQ
             }
         }
 
-        public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, int, bool> predicate)
+        public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source,
+            Func<TSource, int, bool> predicate)
         {
             if (source == null) throw new ArgumentNullException();
             if (predicate == null) throw new ArgumentNullException();
             return WhereYieldResult(source, predicate);
         }
 
-        private static IEnumerable<TSource> WhereYieldResult<TSource>(IEnumerable<TSource> source, Func<TSource, int, bool> predicate)
+        private static IEnumerable<TSource> WhereYieldResult<TSource>(IEnumerable<TSource> source,
+            Func<TSource, int, bool> predicate)
         {
-            int index = 0;
+            var index = 0;
             foreach (var element in source)
             {
                 if (predicate(element, index)) yield return element;
@@ -165,7 +166,6 @@ namespace Kottans.LINQ
             }
         }
 
-
         public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source)
         {
             if (source == null) throw new ArgumentNullException();
@@ -184,6 +184,93 @@ namespace Kottans.LINQ
             {
                 if (predicate(element)) return element;
             }
+            return default(TSource);
+        }
+
+        public static TSource Last<TSource>(this IEnumerable<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException();
+            var result = default(TSource);
+            var list = source as IList<TSource>;
+            if (list != null)
+            {
+                var count = list.Count;
+                if (count > 0) result = list[count - 1];
+            }
+            else
+            {
+                using (var enumerator = source.GetEnumerator())
+                {
+                    if (!enumerator.MoveNext()) throw new InvalidOperationException();
+                    while (enumerator.MoveNext())
+                    {
+                    }
+                    result = enumerator.Current;
+                }
+            }
+            return result;
+        }
+
+        public static TSource Last<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (predicate == null) throw new ArgumentNullException();
+
+            var existsMatching = false;
+            var result = default(TSource);
+            foreach (var element in source)
+            {
+                if (predicate(element))
+                {
+                    result = element;
+                    existsMatching = true;
+                }
+            }
+            if (!existsMatching) throw new InvalidOperationException();
+            return result;
+        }
+
+
+        public static TSource LastOrDefault<TSource>(this IEnumerable<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException();
+            var list = source as IList<TSource>;
+            if (list != null)
+            {
+                var count = list.Count;
+                if (count > 0) return list[count - 1];
+            }
+            else
+            {
+                using (var enumerator = source.GetEnumerator())
+                {
+                    if (enumerator.MoveNext())
+                    {
+                        while (enumerator.MoveNext())
+                        {
+                        }
+                        return enumerator.Current;
+                    }
+                }
+            }
+            return default(TSource);
+        }
+
+        public static TSource LastOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException();
+            if (predicate == null) throw new ArgumentNullException();
+            var existsMatching = false;
+            var result = default(TSource);
+            foreach (var element in source)
+            {
+                if (predicate(element))
+                {
+                    result = element;
+                    existsMatching = true;
+                }
+            }
+            if (existsMatching) return result;
             return default(TSource);
         }
 
@@ -214,7 +301,8 @@ namespace Kottans.LINQ
             return source.Distinct(EqualityComparer<TSource>.Default);
         }
 
-        public static IEnumerable<TSource> Distinct<TSource>(this IEnumerable<TSource> source, IEqualityComparer<TSource> comparer)
+        public static IEnumerable<TSource> Distinct<TSource>(this IEnumerable<TSource> source,
+            IEqualityComparer<TSource> comparer)
         {
             if (source == null) throw new ArgumentNullException();
             if (comparer == null) return DistinctYieldResult(source, EqualityComparer<TSource>.Default);
@@ -238,11 +326,6 @@ namespace Kottans.LINQ
         public static IEnumerable<T> Empty<T>()
         {
             return EmptyEnumerable<T>.Instance;
-        }
-
-        private static class EmptyEnumerable<T>
-        {
-            public static readonly T[] Instance = new T[0];
         }
 
         public static int Sum(this IEnumerable<int> source)
@@ -438,6 +521,11 @@ namespace Kottans.LINQ
         public static double? Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, double?> selector)
         {
             return Sum(source.Select(selector));
+        }
+
+        private static class EmptyEnumerable<T>
+        {
+            public static readonly T[] Instance = new T[0];
         }
     }
 }
