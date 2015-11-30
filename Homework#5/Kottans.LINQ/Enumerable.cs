@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
 
 //using System.Linq;
 
@@ -534,7 +532,7 @@ namespace Kottans.LINQ
 
         private static IEnumerable<T> RepeatYieldResult<T>(T toRepeat, int times)
         {
-            for (int i = 0; i < times; i++)
+            for (var i = 0; i < times; i++)
             {
                 yield return toRepeat;
             }
@@ -549,18 +547,17 @@ namespace Kottans.LINQ
         private static IEnumerable<TSource> ReverseYiedResult<TSource>(IEnumerable<TSource> source)
         {
             var count = source.Count();
-           var array = new TSource[count];
-            int index = count - 1;
+            var array = new TSource[count];
+            var index = count - 1;
             foreach (var element in source)
             {
                 array[index] = element;
                 index--;
             }
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 yield return array[i];
             }
-
         }
 
         public static IEnumerable<TResult> SelectMany<TSource, TResult>(this IEnumerable<TSource> source,
@@ -584,7 +581,7 @@ namespace Kottans.LINQ
         }
 
         public static IEnumerable<TResult> SelectMany<TSource, TResult>(this IEnumerable<TSource> source,
-           Func<TSource, int, IEnumerable<TResult>> selector)
+            Func<TSource, int, IEnumerable<TResult>> selector)
         {
             if (source == null) throw new ArgumentNullException();
             if (selector == null) throw new ArgumentNullException();
@@ -594,7 +591,7 @@ namespace Kottans.LINQ
         private static IEnumerable<TResult> SelectManyYieldResult<TSource, TResult>(IEnumerable<TSource> source,
             Func<TSource, int, IEnumerable<TResult>> selector)
         {
-            int index = 0;
+            var index = 0;
             foreach (var element in source)
             {
                 foreach (var subElement in selector(element, index))
@@ -613,8 +610,9 @@ namespace Kottans.LINQ
             return SelectManyYieldResult(source, selector, resultSelector);
         }
 
-        private static IEnumerable<TResult> SelectManyYieldResult<TSource, TResult, TCollection>(this IEnumerable<TSource> source,
-           Func<TSource, IEnumerable<TCollection>> selector, Func<TSource, TCollection, TResult> resultSelector)
+        private static IEnumerable<TResult> SelectManyYieldResult<TSource, TResult, TCollection>(
+            this IEnumerable<TSource> source,
+            Func<TSource, IEnumerable<TCollection>> selector, Func<TSource, TCollection, TResult> resultSelector)
         {
             foreach (var element in source)
             {
@@ -633,10 +631,11 @@ namespace Kottans.LINQ
             return SelectManyYieldResult(source, selector, resultSelector);
         }
 
-        private static IEnumerable<TResult> SelectManyYieldResult<TSource, TResult, TCollection>(this IEnumerable<TSource> source,
-           Func<TSource, int, IEnumerable<TCollection>> selector, Func<TSource, TCollection, TResult> resultSelector)
+        private static IEnumerable<TResult> SelectManyYieldResult<TSource, TResult, TCollection>(
+            this IEnumerable<TSource> source,
+            Func<TSource, int, IEnumerable<TCollection>> selector, Func<TSource, TCollection, TResult> resultSelector)
         {
-            int index = 0;
+            var index = 0;
             foreach (var element in source)
             {
                 foreach (var subElement in selector(element, index))
@@ -645,6 +644,35 @@ namespace Kottans.LINQ
                 }
                 index++;
             }
+        }
+
+        public static bool SequenceEqual<T>(this IEnumerable<T> first, IEnumerable<T> second)
+        {
+            return SequenceEqual(first, second, EqualityComparer<T>.Default);
+        }
+
+        public static bool SequenceEqual<T>(this IEnumerable<T> first, IEnumerable<T> second,
+            IEqualityComparer<T> comparer)
+        {
+            if (first == null) throw new ArgumentNullException();
+            if (second == null) throw new ArgumentNullException();
+            if (comparer == null) comparer = EqualityComparer<T>.Default;
+            using (var enumeratorFirst = first.GetEnumerator())
+            {
+                using (var enumeratorSecond = second.GetEnumerator())
+                {
+                    var moveFirst = enumeratorFirst.MoveNext();
+                    var moveSecond = enumeratorSecond.MoveNext();
+                    while (moveFirst && moveSecond)
+                    {
+                        if (!comparer.Equals(enumeratorFirst.Current, enumeratorSecond.Current)) return false;
+                        moveFirst = enumeratorFirst.MoveNext();
+                        moveSecond = enumeratorSecond.MoveNext();
+                    }
+                    if (moveFirst || moveSecond) return false;
+                }
+            }
+            return true;
         }
 
         private static class EmptyEnumerable<T>

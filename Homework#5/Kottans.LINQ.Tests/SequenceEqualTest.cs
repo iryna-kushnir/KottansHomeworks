@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Linq;
 using Kottans.LINQ.Tests.Helpers;
 using NUnit.Framework;
 
@@ -51,16 +51,16 @@ namespace Kottans.LINQ.Tests
         [Test]
         public void UnequalLengthsBothRangesFirstLonger()
         {
-            var first = System.Linq.Enumerable.Range(0, 11);
-            var second = System.Linq.Enumerable.Range(0, 10);
+            var first = Enumerable.Range(0, 11);
+            var second = Enumerable.Range(0, 10);
             Assert.IsFalse(first.SequenceEqual(second));
         }
 
         [Test]
         public void UnequalLengthsBothRangesSecondLonger()
         {
-            var first = System.Linq.Enumerable.Range(0, 10);
-            var second = System.Linq.Enumerable.Range(0, 11);
+            var first = Enumerable.Range(0, 10);
+            var second = Enumerable.Range(0, 11);
             Assert.IsFalse(first.SequenceEqual(second));
         }
 
@@ -83,8 +83,8 @@ namespace Kottans.LINQ.Tests
         [Test]
         public void EqualDataBothRanges()
         {
-            var first = System.Linq.Enumerable.Range(0, 10);
-            var second = System.Linq.Enumerable.Range(0, 10);
+            var first = Enumerable.Range(0, 10);
+            var second = Enumerable.Range(0, 10);
             Assert.IsTrue(first.SequenceEqual(second));
         }
 
