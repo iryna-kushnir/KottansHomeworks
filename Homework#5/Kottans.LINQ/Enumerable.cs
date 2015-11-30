@@ -523,6 +523,20 @@ namespace Kottans.LINQ
             return Sum(source.Select(selector));
         }
 
+        public static IEnumerable<T> Repeat<T>(T toRepeat, int times)
+        {
+            if (times < 0) throw new ArgumentOutOfRangeException();
+            return RepeatYieldResult(toRepeat, times);
+        }
+
+        public static IEnumerable<T> RepeatYieldResult<T>(T toRepeat, int times)
+        {
+            for (int i = 0; i < times; i++)
+            {
+                yield return toRepeat;
+            }
+        }
+
         private static class EmptyEnumerable<T>
         {
             public static readonly T[] Instance = new T[0];
